@@ -3,9 +3,12 @@ import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Preload, useGLTF } from "@react-three/drei";
 
 import CanvasLoader from "../Loader";
+import { useWebGL } from "../../hooks/useWebGL";
 
 const Computers = ({ isMobile }) => {
-  const computer = useGLTF("/desktop_pc/scene.gltf");
+  const computer = useGLTF("/desktop_pc/scene.gltf", undefined, (error) => {
+    console.error("Failed to load computer model:", error);
+  });
 
   return (
     <mesh>
@@ -31,6 +34,8 @@ const Computers = ({ isMobile }) => {
 
 const ComputersCanvas = () => {
   const [isMobile, setIsMobile] = useState(false);
+  const [showFallback, setShowFallback] = useState(false);
+  const { webGLSupported, isChecking } = useWebGL();
 
   useEffect(() => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
@@ -54,19 +59,58 @@ const ComputersCanvas = () => {
     }
   }, []);
 
+  // Timeout fallback for mobile - show fallback after 5 seconds
+  useEffect(() => {
+    if (isMobile) {
+      const timer = setTimeout(() => {
+        setShowFallback(true);
+      }, 5000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isMobile]);
+
+  // Show fallback for mobile when WebGL is not supported or timeout reached
+  if (isMobile && ((!isChecking && !webGLSupported) || showFallback)) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-32 h-32 mx-auto mb-4 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+            <span className="text-white text-4xl font-bold">💻</span>
+          </div>
+          <p className="text-white text-sm opacity-75">3D Model Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Canvas
       frameloop='demand'
       shadows
-      dpr={[1, 1.5]}
+      dpr={isMobile ? [1, 1] : [1, 1.5]}
       camera={{ position: [20, 3, 5], fov: 25 }}
-      gl={{ preserveDrawingBuffer: false, powerPreference: "high-performance", antialias: true, alpha: true }}
+      gl={{ 
+        preserveDrawingBuffer: false, 
+        powerPreference: "high-performance", 
+        antialias: !isMobile,
+        alpha: true,
+        failIfMajorPerformanceCaveat: false
+      }}
+      onCreated={({ gl }) => {
+        // Additional mobile optimizations
+        if (isMobile) {
+          gl.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+        }
+      }}
     >
       <Suspense fallback={<CanvasLoader />}>
         <OrbitControls
           enableZoom={false}
           maxPolarAngle={Math.PI / 2}
           minPolarAngle={Math.PI / 2}
+          enablePan={false}
+          enableRotate={!isMobile}
         />
         <Computers isMobile={isMobile} />
       </Suspense>
