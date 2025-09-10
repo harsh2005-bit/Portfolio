@@ -100,7 +100,7 @@ const ComputersCanvas = () => {
           <div className="w-32 h-32 mx-auto mb-4 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
             <span className="text-white text-4xl font-bold">💻</span>
           </div>
-          <p className="text-white text-sm opacity-75">Desktop Setup</p>
+          <p className="text-white text-sm opacity-75">3D Graphics</p>
         </div>
       </div>
     );
