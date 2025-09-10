@@ -10,12 +10,15 @@ export const useWebGL = () => {
         const canvas = document.createElement('canvas');
         const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
         
+        console.log('WebGL check:', { gl: !!gl, userAgent: navigator.userAgent });
+        
         if (gl) {
           setWebGLSupported(true);
         } else {
           setWebGLSupported(false);
         }
       } catch (e) {
+        console.error('WebGL check failed:', e);
         setWebGLSupported(false);
       }
       setIsChecking(false);

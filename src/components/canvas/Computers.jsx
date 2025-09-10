@@ -38,37 +38,73 @@ const ComputersCanvas = () => {
   const { webGLSupported, isChecking } = useWebGL();
 
   useEffect(() => {
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
-      return;
-    }
-
-    const mediaQuery = window.matchMedia("(max-width: 500px)");
-    setIsMobile(mediaQuery.matches);
-
-    const handleMediaQueryChange = (event) => {
-      setIsMobile(event.matches);
+    // More aggressive mobile detection
+    const checkMobile = () => {
+      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                            (typeof window !== "undefined" && window.innerWidth <= 768) ||
+                            (typeof window !== "undefined" && window.matchMedia && window.matchMedia("(max-width: 500px)").matches);
+      
+      console.log('Mobile detection:', { 
+        userAgent: navigator.userAgent, 
+        innerWidth: window.innerWidth, 
+        isMobileDevice 
+      });
+      
+      setIsMobile(isMobileDevice);
     };
 
-    // Safari < 14 uses addListener/removeListener
-    if (typeof mediaQuery.addEventListener === "function") {
-      mediaQuery.addEventListener("change", handleMediaQueryChange);
-      return () => mediaQuery.removeEventListener("change", handleMediaQueryChange);
-    } else if (typeof mediaQuery.addListener === "function") {
-      mediaQuery.addListener(handleMediaQueryChange);
-      return () => mediaQuery.removeListener(handleMediaQueryChange);
+    checkMobile();
+
+    if (typeof window !== "undefined" && typeof window.matchMedia === "function") {
+      const mediaQuery = window.matchMedia("(max-width: 500px)");
+      
+      const handleMediaQueryChange = (event) => {
+        setIsMobile(event.matches);
+      };
+
+      // Safari < 14 uses addListener/removeListener
+      if (typeof mediaQuery.addEventListener === "function") {
+        mediaQuery.addEventListener("change", handleMediaQueryChange);
+        return () => mediaQuery.removeEventListener("change", handleMediaQueryChange);
+      } else if (typeof mediaQuery.addListener === "function") {
+        mediaQuery.addListener(handleMediaQueryChange);
+        return () => mediaQuery.removeListener(handleMediaQueryChange);
+      }
     }
   }, []);
 
-  // Timeout fallback for mobile - show fallback after 5 seconds
+  // Timeout fallback for mobile - show fallback after 2 seconds
   useEffect(() => {
     if (isMobile) {
+      console.log('Mobile detected, setting 2s timeout for fallback');
       const timer = setTimeout(() => {
+        console.log('Timeout reached, showing fallback');
         setShowFallback(true);
-      }, 5000);
+      }, 2000);
       
       return () => clearTimeout(timer);
     }
   }, [isMobile]);
+
+  // Debug logging
+  useEffect(() => {
+    console.log('ComputersCanvas state:', { isMobile, webGLSupported, isChecking, showFallback });
+  }, [isMobile, webGLSupported, isChecking, showFallback]);
+
+  // TEMPORARY: Show fallback immediately on mobile for testing
+  if (isMobile) {
+    console.log('Showing fallback immediately for mobile');
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-32 h-32 mx-auto mb-4 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+            <span className="text-white text-4xl font-bold">💻</span>
+          </div>
+          <p className="text-white text-sm opacity-75">Desktop Setup</p>
+        </div>
+      </div>
+    );
+  }
 
   // Show fallback for mobile when WebGL is not supported or timeout reached
   if (isMobile && ((!isChecking && !webGLSupported) || showFallback)) {

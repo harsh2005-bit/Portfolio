@@ -46,24 +46,38 @@ const BallCanvas = ({ icon }) => {
   const { webGLSupported, isChecking } = useWebGL();
 
   useEffect(() => {
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
-      return;
-    }
-
-    const mediaQuery = window.matchMedia("(max-width: 500px)");
-    setIsMobile(mediaQuery.matches);
-
-    const handleMediaQueryChange = (event) => {
-      setIsMobile(event.matches);
+    // More aggressive mobile detection
+    const checkMobile = () => {
+      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                            (typeof window !== "undefined" && window.innerWidth <= 768) ||
+                            (typeof window !== "undefined" && window.matchMedia && window.matchMedia("(max-width: 500px)").matches);
+      
+      console.log('Ball Mobile detection:', { 
+        userAgent: navigator.userAgent, 
+        innerWidth: window.innerWidth, 
+        isMobileDevice 
+      });
+      
+      setIsMobile(isMobileDevice);
     };
 
-    // Safari < 14 uses addListener/removeListener
-    if (typeof mediaQuery.addEventListener === "function") {
-      mediaQuery.addEventListener("change", handleMediaQueryChange);
-      return () => mediaQuery.removeEventListener("change", handleMediaQueryChange);
-    } else if (typeof mediaQuery.addListener === "function") {
-      mediaQuery.addListener(handleMediaQueryChange);
-      return () => mediaQuery.removeListener(handleMediaQueryChange);
+    checkMobile();
+
+    if (typeof window !== "undefined" && typeof window.matchMedia === "function") {
+      const mediaQuery = window.matchMedia("(max-width: 500px)");
+      
+      const handleMediaQueryChange = (event) => {
+        setIsMobile(event.matches);
+      };
+
+      // Safari < 14 uses addListener/removeListener
+      if (typeof mediaQuery.addEventListener === "function") {
+        mediaQuery.addEventListener("change", handleMediaQueryChange);
+        return () => mediaQuery.removeEventListener("change", handleMediaQueryChange);
+      } else if (typeof mediaQuery.addListener === "function") {
+        mediaQuery.addListener(handleMediaQueryChange);
+        return () => mediaQuery.removeListener(handleMediaQueryChange);
+      }
     }
   }, []);
 
@@ -77,6 +91,21 @@ const BallCanvas = ({ icon }) => {
       return () => clearTimeout(timer);
     }
   }, [isMobile]);
+
+  // TEMPORARY: Show fallback immediately on mobile for testing
+  if (isMobile) {
+    console.log('Showing ball fallback immediately for mobile');
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-2 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+            <span className="text-white text-xl font-bold">⚡</span>
+          </div>
+          <p className="text-white text-xs opacity-75">Tech</p>
+        </div>
+      </div>
+    );
+  }
 
   // Show fallback for mobile when WebGL is not supported or timeout reached
   if (isMobile && ((!isChecking && !webGLSupported) || showFallback)) {
