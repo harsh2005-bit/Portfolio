@@ -5,7 +5,7 @@ import { OrbitControls, Preload, useGLTF } from "@react-three/drei";
 import CanvasLoader from "../Loader";
 
 const Computers = ({ isMobile }) => {
-  const computer = useGLTF("./desktop_pc/scene.gltf");
+  const computer = useGLTF("/desktop_pc/scene.gltf");
 
   return (
     <mesh>
@@ -33,33 +33,34 @@ const ComputersCanvas = () => {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    // Add a listener for changes to the screen size
-    const mediaQuery = window.matchMedia("(max-width: 500px)");
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      return;
+    }
 
-    // Set the initial value of the `isMobile` state variable
+    const mediaQuery = window.matchMedia("(max-width: 500px)");
     setIsMobile(mediaQuery.matches);
 
-    // Define a callback function to handle changes to the media query
     const handleMediaQueryChange = (event) => {
       setIsMobile(event.matches);
     };
 
-    // Add the callback function as a listener for changes to the media query
-    mediaQuery.addEventListener("change", handleMediaQueryChange);
-
-    // Remove the listener when the component is unmounted
-    return () => {
-      mediaQuery.removeEventListener("change", handleMediaQueryChange);
-    };
+    // Safari < 14 uses addListener/removeListener
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", handleMediaQueryChange);
+      return () => mediaQuery.removeEventListener("change", handleMediaQueryChange);
+    } else if (typeof mediaQuery.addListener === "function") {
+      mediaQuery.addListener(handleMediaQueryChange);
+      return () => mediaQuery.removeListener(handleMediaQueryChange);
+    }
   }, []);
 
   return (
     <Canvas
       frameloop='demand'
       shadows
-      dpr={[1, 2]}
+      dpr={[1, 1.5]}
       camera={{ position: [20, 3, 5], fov: 25 }}
-      gl={{ preserveDrawingBuffer: true }}
+      gl={{ preserveDrawingBuffer: false, powerPreference: "high-performance", antialias: true, alpha: true }}
     >
       <Suspense fallback={<CanvasLoader />}>
         <OrbitControls
