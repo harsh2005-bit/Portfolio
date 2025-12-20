@@ -210,7 +210,8 @@ const testimonials = [
 const projects = [
   {
     name: "GoCart",
-    "GoCart is a full-stack e-commerce web application that allows users to browse products, manage carts, add delivery addresses, and place orders using Cash on Delivery or Stripe payments, with secure authentication and a responsive user experience.",   
+    description:
+      "GoCart is a full-stack e-commerce web application that allows users to browse products, manage carts, add delivery addresses, and place orders using Cash on Delivery or Stripe payments, with secure authentication and a responsive user experience.",   
     tags: [
       {
         name: "Next",
