@@ -22,7 +22,6 @@ import {
   carrent,
   jobit,
   tripguide,
-  carrent,
   threejs,
 } from "../assets";
 
@@ -124,7 +123,7 @@ const experiences = [
     title: "A Real Estate App",
     icon: starbucks,
     iconBg: "#383E56",
-    date: "Aug 2025 - July 2025",
+    date: "July 2025 - Aug 2025",
     points: [
       "Developed a full-stack Real Estate application using React Native for a smooth and responsive mobile experience.",
       "Integrated Google Authentication for secure and seamless user sign-ups and logins.",
