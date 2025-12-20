@@ -22,6 +22,7 @@ import {
   carrent,
   jobit,
   tripguide,
+  GoCartimg,
   carrent,
   threejs,
 } from "../assets";
@@ -231,7 +232,7 @@ const projects = [
         color: "red-text-gradient",
       },
     ],
-    image carrent,
+    image GoCartimg,
     source_code_link: "https://gocart-27ci.onrender.com/",
   },
   
