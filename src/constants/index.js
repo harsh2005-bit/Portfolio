@@ -209,16 +209,15 @@ const testimonials = [
 
 const projects = [
   {
-    name: "Banking",
-    description:
-      "Horizon is a financial SaaS platform that connects to multiple bank accounts, displays transactions in real-time, allows users to transfer money to other platform users, and manages their finances altogether.",
+    name: "GoCart",
+    "GoCart is a full-stack e-commerce web application that allows users to browse products, manage carts, add delivery addresses, and place orders using Cash on Delivery or Stripe payments, with secure authentication and a responsive user experience.",   
     tags: [
       {
         name: "Next",
         color: "blue-text-gradient",
       },
       {
-        name: "appwrite",
+        name: "mongodb",
         color: "green-text-gradient",
       },
       {
@@ -226,12 +225,12 @@ const projects = [
         color: "pink-text-gradient",
       },
       {
-        name: "typescript",
+        name: "stripe",
         color: "red-text-gradient",
       },
     ],
     image: carrent,
-    source_code_link: "https://thebankingwebsite.vercel.app/",
+    source_code_link: "https://gocart-27ci.onrender.com/",
   },
   
   {
