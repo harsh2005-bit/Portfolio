@@ -230,7 +230,7 @@ const projects = [
         color: "red-text-gradient",
       },
     ],
-    image: GoCartimg,
+    image carrent,
     source_code_link: "https://gocart-27ci.onrender.com/",
   },
   
